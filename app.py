@@ -271,24 +271,26 @@ def make_engineering_comments(original: str, updated: str):
 
 
 def render_metric_row(metrics):
-    html_out = '<div class="summary-row">'
+    parts = ['<div class="summary-row">']
+
     for icon, value, label, cls in metrics:
-        html_out += f"""
-        <div class="metric-card">
-            <div class="metric-icon {cls}">{html.escape(str(icon))}</div>
-            <div>
-                <div class="metric-number">{html.escape(str(value))}</div>
-                <div class="metric-label">{html.escape(str(label))}</div>
-            </div>
-        </div>
-        """
-    html_out += "</div>"
-    st.markdown(html_out, unsafe_allow_html=True)
+        parts.append(
+            f'<div class="metric-card">'
+            f'<div class="metric-icon {html.escape(str(cls))}">{html.escape(str(icon))}</div>'
+            f'<div>'
+            f'<div class="metric-number">{html.escape(str(value))}</div>'
+            f'<div class="metric-label">{html.escape(str(label))}</div>'
+            f'</div>'
+            f'</div>'
+        )
+
+    parts.append("</div>")
+    st.markdown("".join(parts), unsafe_allow_html=True)
 
 
 def render_comment_cards(comments):
     priority_colors = {"High": "#EF4444", "Review": ORANGE, "Info": "#64748B"}
-    cards = ""
+    cards = []
 
     for comment in comments:
         color = priority_colors.get(comment["priority"], "#64748B")
@@ -298,30 +300,27 @@ def render_comment_cards(comments):
             safe_items = "".join(f"<li>{html.escape(str(item))}</li>" for item in comment["items"])
             items_html = f"<ul>{safe_items}</ul>"
 
-        cards += f"""
-        <div class="comment-card">
-            <div class="comment-top">
-                <span class="priority-pill" style="background:{color};">{html.escape(comment["priority"])}</span>
-                <span class="comment-category">{html.escape(comment["category"])}</span>
-            </div>
-            <div class="comment-text">{html.escape(comment["comment"])}</div>
-            {items_html}
-        </div>
-        """
+        cards.append(
+            f'<div class="comment-card">'
+            f'<div class="comment-top">'
+            f'<span class="priority-pill" style="background:{color};">{html.escape(comment["priority"])}</span>'
+            f'<span class="comment-category">{html.escape(comment["category"])}</span>'
+            f'</div>'
+            f'<div class="comment-text">{html.escape(comment["comment"])}</div>'
+            f'{items_html}'
+            f'</div>'
+        )
 
-    return cards
+    return "".join(cards)
 
 
 def render_comments_panel(title, comments):
+    cards = render_comment_cards(comments)
     st.markdown(
-        f"""
-        <div class="review-panel">
-            <div class="panel-title">{html.escape(title)}</div>
-            <div class="comment-grid">
-                {render_comment_cards(comments)}
-            </div>
-        </div>
-        """,
+        f'<div class="review-panel">'
+        f'<div class="panel-title">{html.escape(title)}</div>'
+        f'<div class="comment-grid">{cards}</div>'
+        f'</div>',
         unsafe_allow_html=True,
     )
 
@@ -340,19 +339,15 @@ def render_diff_panel(original_text, updated_text):
     )
 
     st.markdown(
-        f"""
-        <div class="diff-panel">
-            <div class="panel-title">Line Changes</div>
-            <div class="legend">
-                <span class="legend-added">Added</span>
-                <span class="legend-removed">Removed</span>
-                <span class="legend-changed">Changed Within Line</span>
-            </div>
-            <div class="diff-wrapper">
-                {html_diff}
-            </div>
-        </div>
-        """,
+        f'<div class="diff-panel">'
+        f'<div class="panel-title">Line Changes</div>'
+        f'<div class="legend">'
+        f'<span class="legend-added">Added</span>'
+        f'<span class="legend-removed">Removed</span>'
+        f'<span class="legend-changed">Changed Within Line</span>'
+        f'</div>'
+        f'<div class="diff-wrapper">{html_diff}</div>'
+        f'</div>',
         unsafe_allow_html=True,
     )
 
