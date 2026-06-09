@@ -1,6 +1,3 @@
-
-**app.py**
-```python
 import difflib
 import html
 import io
